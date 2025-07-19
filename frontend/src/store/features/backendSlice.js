@@ -12,6 +12,27 @@ export const sendUserData = createAsyncThunk("backend/sendUserData", async (user
     }
 });
 
+export const sendCalorieBurnt = createAsyncThunk("backend/sendUserCalorie", async ({ caloriesBurnt }, thunkAPI) => {
+    console.log("caloriesBurnt are : " + caloriesBurnt);
+    try {
+        const response = await axios.post("http://localhost:5001/post-userdata", { caloriesBurnt }, { withCredentials: true });
+        return response.data;
+    } catch (error) {
+        return thunkAPI.rejectWithValue(error.response?.data || error.message);
+    }
+});
+
+export const sendEditedBurntCalories = createAsyncThunk("backend/sendEditedBurntCalories", async ({ caloriesBurnt, dateid }, thunkAPI) => {
+    console.log("editedBurntCalories are : " + caloriesBurnt);
+    console.log("date id is  : " + dateid);
+    try {
+        const response = await axios.put(`http://localhost:5001/edit-calorieburnt/${dateid}`, { caloriesBurnt }, { withCredentials: true });
+        return response.data;
+    } catch (error) {
+        return thunkAPI.rejectWithValue(error.response?.data || error.message);
+    }
+})
+
 export const loginUser = createAsyncThunk("backend/loginUser", async (userData, thunkAPI) => {
     try {
         const { email, password } = userData;
@@ -49,6 +70,7 @@ export const checkUserSession = createAsyncThunk("backend/getUserData", async (_
 export const addUserData = createAsyncThunk("backend/postUserData", async (userData, thunkAPI) => {
     try {
         const { name, calories, customDate } = userData;
+        console.log("Backend Slice", "cutomDate :", customDate)
         const response = await axios.post(
             "http://localhost:5001/post-userdata",
             { name, calories, customDate },
@@ -64,15 +86,16 @@ export const setCalorieIntake = createAsyncThunk("backend/setCalorieIntake", asy
     try {
         console.log("required calorie intake is : " + roundedTdeeCalc);
         const response = await axios.post("http://localhost:5001/post-userdata", { roundedTdeeCalc }, { withCredentials: true });
-        return response.data;   
+        return response.data;
     } catch (error) {
         return thunkAPI.rejectWithValue(error.response?.data || error.message);
     }
 })
 
-export const editUserData = createAsyncThunk("backend/editUserData", async (userData, thunkAPI) => {
+export const editUserData = createAsyncThunk("backend/editUserData", async ({ dateid, fooditemid, name, calories }, thunkAPI) => {
+    console.log("editUser hitted");
     try {
-        const { dateid, fooditemid, name, calories } = userData;
+        console.log("Type of calories is :", typeof calories);
         const response = await axios.put(`http://localhost:5001/edit-userdata/${dateid}/${fooditemid}`, { name, calories }, { withCredentials: true });
         return response.data;
     } catch (error) {
@@ -117,20 +140,43 @@ export const deleteUsersWholeData = createAsyncThunk("backend/deleteUserWholeDat
 
 const backendSlice = createSlice({
     name: "backend",
-    initialState: { status: "idle", error: null, isAuthenticated: false, data: null,message : null }, // message state is also to be added.
+    initialState: { status: "idle", error: null, isAuthenticated: false, data: null, message: null }, // message state is also to be added.
     extraReducers: (builder) => {
         builder
+            .addCase(sendEditedBurntCalories.pending, (state) => {
+                state.status = "loading"
+            })
+            .addCase(sendEditedBurntCalories.fulfilled, (state, action) => {
+                state.status = "successfull",
+                    state.data = action.payload?.data
+
+            })
+            .addCase(sendEditedBurntCalories.rejected, (state, action) => {
+                state.status = "rejected",
+                    state.error = action.payload?.error
+            })
+            .addCase(sendCalorieBurnt.pending, (state) => {
+                state.status = "idle";
+            })
+            .addCase(sendCalorieBurnt.fulfilled, (state, action) => {
+                state.status = "successfull",
+                    state.data = action.payload?.data
+            })
+            .addCase(sendCalorieBurnt.rejected, (state, action) => {
+                state.status = "rejected",
+                    state.error = action.payload?.error
+            })
             .addCase(deleteUsersWholeData.pending, (state) => {
                 state.status = "pending"
             })
-            .addCase(deleteUsersWholeData.fulfilled,(state,action)=>{
+            .addCase(deleteUsersWholeData.fulfilled, (state, action) => {
                 state.status = "succeeded",
-                state.data = action.payload?.data
+                    state.data = action.payload?.data
                 state.message = action.payload?.message
             })
-            .addCase(deleteUsersWholeData.rejected,(state,action)=>{
+            .addCase(deleteUsersWholeData.rejected, (state, action) => {
                 state.status = "rejected",
-                state.error = action.payload?.error
+                    state.error = action.payload?.error
             })
             .addCase(editUserCredentials.pending, (state) => {
                 state.status = "pending";
@@ -237,7 +283,6 @@ const backendSlice = createSlice({
             })
     }
 });
-
 
 export const { increment, decrement } = backendSlice.actions;
 export default backendSlice.reducer;

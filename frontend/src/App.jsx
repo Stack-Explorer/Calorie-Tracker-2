@@ -11,7 +11,8 @@ import DateWiseData from './components/DateWiseData'
 import UpdateUser from './components/UpdateUser'
 import Header from './components/Header'
 import WelcomeSection from './components/WelcomeSection'
-import toast from 'react-hot-toast'
+import toast, { Toaster } from 'react-hot-toast'
+import CaloriesBurnt from './components/CaloriesBurnt'
 
 function App() {
 
@@ -38,15 +39,17 @@ function App() {
 
 
       <Header />
+      <CaloriesBurnt />
       <br />
-      {data && <WelcomeSection data={data} />}
+      Comments hata
+      {/* {data && <WelcomeSection data={data} />} */}
       <Routes>
         <Route path='/' element={data && <CalorieTrackerRedux />} />
         <Route path='/datewisedata' element={data && <DateWiseData />} />
         <Route path='/signup' element={<Signup />} />
         <Route path='/login' element={<Login />} />
       </Routes>
-
+      <Toaster />
       <p>Status is : {status}</p>
     </>
   )

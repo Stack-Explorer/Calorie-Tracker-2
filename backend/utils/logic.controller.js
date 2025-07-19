@@ -2,14 +2,14 @@ import Calorie from "../models/calorie.model.js";
 import cron from "node-cron";
 
 function trimChecker(value, fieldName, res) {
-    if (!value) return res.status(400).json({ message: fieldName + " Cannot be empty" });
+    if (!value) return res.status(400).json({ error: fieldName + " Cannot be empty" });
 }
 
 export const getUserData = async (req, res) => {
     try {
 
         const userId = req.user._id;
-        if (!userId) return res.status(401).json({ message: "Invalid User" });
+        if (!userId) return res.status(401).json({ error: "Invalid User" });
         console.log(userId);
         const user = await Calorie.findById(userId);
 
@@ -21,60 +21,90 @@ export const getUserData = async (req, res) => {
 }
 
 export const postUserData = async (req, res) => {
-    if (!req.user) return;
-
-    const { name, calories, roundedTdeeCalc } = req.body;
-
-    console.log("requiredCalorieIntake is : " + roundedTdeeCalc);
-    if (name) {
-        console.log("Food Item : " + name);
-        trimChecker(name, "foodName", res);
-    }
-
-    if (calories) {
-        trimChecker(calories, "Calories", res);
-    }
-
+    console.log("Request hitted !");
+    const { name, calories, roundedTdeeCalc, caloriesBurnt } = req.body;
     const userId = req.user._id;
+    const user = await Calorie.findById(userId);
+    if (!user) return res.status(400).json({ error: "User dont exists" });
+
     const today = new Date().toISOString().split("T")[0];
-    const selectedDate = req.body.customDate || today;
+    const customDate = req.body.customDate;
 
-    try {
-        const user = await Calorie.findById(userId);
+    const selectedDate = customDate || today;
 
-        if (!user) return res.status(404).json({ message: "User not found" });
+    const dateEntry = await user.DateWise.find((currItem) => currItem.date === selectedDate);
 
-        const dateEntry = user.DateWise.find(entry => entry.date === selectedDate);
+    user.netCaloriesBurnt = user.DateWise.reduce((sum, currItem) => sum + currItem.caloriesBurnt, 0);
 
-        if (roundedTdeeCalc) {
-            user.requiredCalorieIntake = roundedTdeeCalc
+    roundedTdeeCalc ? user.requiredCalorieIntake = roundedTdeeCalc : 0;
+
+    if (!dateEntry) console.log("No entry for today");
+
+    if (dateEntry) {
+        if (name && calories) {
+            dateEntry.fooditems.push({ name, calories })
         }
-
-        if (dateEntry) {
-            if (name && calories) {
-                dateEntry.fooditems.push({ name, calories });
-                dateEntry.totalCalories += calories;
-            }
-        } else {
-            if (name && calories) {
-                user.DateWise.push({
-                    date: selectedDate,
-                    totalCalories: calories,
-                    fooditems: [{ name, calories }]
-                })
-            }
-        }
-
-        await user.save();
-
-        return res.status(200).json({ message: "food Item Added Successfully", data: user });
-    } catch (error) {
-        console.log("Error is : " + error)
+        dateEntry.totalCalories = dateEntry.fooditems.reduce((sum, currItem) => sum + currItem.calories, 0);
+        if (caloriesBurnt) dateEntry.caloriesBurnt = caloriesBurnt
+    } else {
+        await user.DateWise.push({
+            date: selectedDate,
+            fooditems: name && calories ? [{ name, calories }] : [], // to add frontend validation.
+            caloriesBurnt: caloriesBurnt || 0,
+            totalCalories: calories || 0
+        })
     }
+
+    user.netCaloriesBurnt = user.DateWise.reduce((sum, currItem) => sum + currItem.caloriesBurnt, 0);
+    const totalCalorieIntakeArray = user.DateWise.map((currItem) => currItem.totalCalories);
+
+    const totalCalorieIntake = totalCalorieIntakeArray.reduce((sum, item) => sum + item, 0);
+    user.netCaloriesIntake = totalCalorieIntake;
+
+    console.log("Net cal Intake is :", totalCalorieIntake)
+
+    await user.save();
+
+    return res.status(201).json({ message: "Data Added successfully", data: user });
 
 }
 
+export const editUserCalorieBurnt = async (req, res) => {
+    const { dateid } = req.params; // will be sent by user as per.
+    const { caloriesBurnt } = req.body;
+    console.log("dateid is :", dateid, "calories burnt are :", caloriesBurnt);
+    const userId = req.user._id;
+    try {
+
+        await trimChecker(caloriesBurnt);
+        const user = await Calorie.findById(userId);
+        if (!user) return res.status(404).json({ error: "User not found" });
+
+        const dateEntry = await user.DateWise.id(dateid);
+        if (!dateEntry) return res.status(404).json({ error: "Date Entry not found" });
+
+
+        if (caloriesBurnt) dateEntry.caloriesBurnt = caloriesBurnt;
+        user.netCaloriesBurnt = user.DateWise.reduce((sum, item) => sum + item.caloriesBurnt, 0);
+
+        const totalCalorieIntakeArray = user.DateWise.map((currItem) => currItem.totalCalories);
+
+        const totalCalorieIntake = totalCalorieIntakeArray.reduce((sum, item) => sum + item, 0);
+        user.netCaloriesIntake = totalCalorieIntake;
+
+        await user.save();
+
+        return res.status(201).json({ message: "burn Calories updated successfully !", data: user });
+
+    } catch (error) {
+        return res.status(500).json({ error: error.message })
+    }
+}
+
 export const editUserData = async (req, res) => {
+   
+    console.log("Request hitted !")
+
     const { dateid, fooditemid } = req.params;
     const { name, calories } = req.body;
     trimChecker(dateid, "Date Id", res);
@@ -85,25 +115,27 @@ export const editUserData = async (req, res) => {
     const userId = req.user._id;
 
     try {
-
         const user = await Calorie.findById(userId);
-        if (!user) return res.status(404).json({ message: "User not found" });
+        if (!user) return res.status(404).json({ error: "User not found" });
 
         const dateEntry = user.DateWise.id(dateid);
-        if (!dateEntry) return res.status(404).json({ message: "Date entry not found" });
+        if (!dateEntry) return res.status(404).json({ error: "Date entry not found" });
 
         const foodItem = dateEntry.fooditems.id(fooditemid);
 
-        if (!foodItem) return res.status(400).json({ message: "FoodItem not found" });
+        if (!foodItem) return res.status(400).json({ error: "FoodItem not found" });
 
         if (name) foodItem.name = name;
         if (calories) foodItem.calories = calories;
 
-        dateEntry.totalCalories = dateEntry.fooditems.reduce((sum, item) => sum + item.calories, 0)
+        dateEntry.totalCalories = dateEntry.fooditems.reduce((sum, item) => {
+            return sum + item.calories;
+        }, 0);
+
 
         await user.save();
 
-        return res.status(201).json({ message: "foodItem modified Successfully", data: foodItem });
+        return res.status(201).json({ message: "foodItem modified Successfully", data: user });
 
     } catch (error) {
         console.log("Edit error : " + error);

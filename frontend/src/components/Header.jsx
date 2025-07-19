@@ -50,7 +50,7 @@ const Header = () => {
             onClick={() => navigate("/")}
             className="text-xl cursor-pointer font-bold text-gray-800"
           >
-            Calorie Tracker
+           To add (Header)
           </h1>
           {userData && (
             <p className="text-sm text-gray-600 mt-1 md:mt-0">
@@ -75,9 +75,9 @@ const Header = () => {
             <>
               <button
                 onClick={handleHistoryButton}
-                className="bg-purple-500 cursor-pointer text-white px-4 py-1.5 rounded-lg hover:text-black hover:bg-rose-100 text-sm font-medium w-full sm:w-auto"
+                className={`${isOnHistoryPage ? `bg-amber-900` : `bg-purple-500`}  cursor-pointer text-white px-4 py-1.5 rounded-lg hover:text-black hover:bg-rose-100 text-sm font-medium w-full sm:w-auto`}
               >
-                {isOnHistoryPage ? "Home" : "History ⏱"}
+                {isOnHistoryPage ? "🏠 Home" : "History ⏱"}
               </button>
 
               <button

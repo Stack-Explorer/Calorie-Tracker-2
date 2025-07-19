@@ -87,18 +87,18 @@ export const deleteUser = async (req, res) => {
 
     const user = await Calorie.findById(userId);
 
-    if (!user) return res.status(400).json({ error : "User doesn't exists" });
+    if (!user) return res.status(400).json({ error: "User doesn't exists" });
 
     const { userGivenPassword } = req.body;
 
     console.log("userGivenPassword is : " + userGivenPassword)
 
     if (!userGivenPassword) {
-        return res.status(400).json({ error : "Password is required !" });
+        return res.status(400).json({ error: "Password is required !" });
     }
     // Password check (since you're not using bcryptjs for now)
     if (user.password !== userGivenPassword) {
-        return res.status(401).json({ error : "Incorrect password" });
+        return res.status(401).json({ error: "Incorrect password" });
     }
 
     await Calorie.deleteOne({ _id: userId });
