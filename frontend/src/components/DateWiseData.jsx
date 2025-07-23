@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { CircleCheckBig, CircleX, Pencil, Trash } from "lucide-react"
 import Calendar from "react-calendar";
 import toast from "react-hot-toast";
-import { addUserData, deleteUserData, editUserData } from "../store/features/backendSlice";
+import { addUserData, deleteUserData, editUserData, sendCalorieBurnt } from "../store/features/backendSlice";
 
 const DateWiseData = () => {
   const [selectedDate, setSelectedDate] = useState(null);
@@ -50,11 +50,10 @@ const DateWiseData = () => {
               : "bg-gray-300 text-gray-500";
           }}
         />
-       {selectedDate && <p className="mt-2">Selected Date: {formatDate(selectedDate)}</p>}
+        {selectedDate && <p className="mt-2">Selected Date: {formatDate(selectedDate)}</p>}
       </div>
     );
   }
-
 
   const userData = useSelector((state) => state.backend.data);
   console.log("Data :", JSON.parse(JSON.stringify(userData)))
@@ -77,18 +76,12 @@ const DateWiseData = () => {
   const [isAddEntryOpen, setIsAddEntryOpen] = useState(false);
 
   useEffect(() => {
-    // Only run if we have a date selected and userData exists
     if (!dateWiseData?._id || !userData?.DateWise) return;
-
-    // Find the updated version of our current date data
-    const updatedDateData = userData.DateWise.find(item => item._id === dateWiseData._id);
-
-    // Only update state if we found a match AND it's actually different
+    const updatedDateData = userData?.DateWise?.find(item => item._id === dateWiseData._id);
     if (updatedDateData && JSON.stringify(updatedDateData) !== JSON.stringify(dateWiseData)) {
       setDateWiseData(updatedDateData);
     }
-  }, [userData, dateWiseData?._id]); // Dependencies remain the same
-
+  }, [userData, dateWiseData?._id]);
 
   async function handleEditSave(dateid, fooditemid) {
     const { name, calories } = foodObject;
@@ -180,10 +173,9 @@ const DateWiseData = () => {
   }
 
   function handleClick(id) {
-    console.log("handleClick called")
-    console.log(id);
+    console.log("Id passed by myCalendar is :", id);
     const dateData = userData?.DateWise?.find((currItem) => currItem._id === id);
-    console.log("Date data is :", dateData?.date)
+    console.log("Date data is :", dateData?.date);
     if (!dateData || !dateData.fooditems || dateData.fooditems.length === 0) {
       setIsDataNotAvailable(true);
       setDateWiseData(null);
@@ -194,7 +186,7 @@ const DateWiseData = () => {
     }
   }
 
-  console.log("dateWiseData is :", dateWiseData)
+  console.log("dateWiseData is :", dateWiseData);
   console.log(isDataNotAvailable);
   console.log("Day having zero entry is :", noDataAvailableForDate)
 
@@ -217,10 +209,25 @@ const DateWiseData = () => {
             }
 
             <p>{currItem._id}</p>
+
           </div>
         </div>
-      )) : <p>No entry found</p>
+      )) : (
+        <>
+        
+        
+        
+          <p>No entry found</p>
+        </> 
+        
+        
+      )
       }
+      <div className="flex">
+        
+     
+      
+      </div>
       <>
         {selectedDate && (  // Only show if date is selected
           <>
@@ -257,8 +264,8 @@ const DateWiseData = () => {
               <button
                 onClick={handleAddEntry}
                 className="px-4 py-2 ml-2 text-white bg-black"
-              >
-                Add Entry
+              >  
+         Add Entry
               </button>
             )}
           </>
@@ -272,7 +279,7 @@ const DateWiseData = () => {
         </>
       }
       <MyCalendar />
-      <button className="mt-3 px-4 py-2 ml-2 text-white bg-black">See Chart</button>
+      <button className="m-3 black-button">See Chart</button>
     </>
 
   )

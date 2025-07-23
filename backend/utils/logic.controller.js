@@ -22,13 +22,12 @@ export const getUserData = async (req, res) => {
 
 export const postUserData = async (req, res) => {
     console.log("Request hitted !");
-    const { name, calories, roundedTdeeCalc, caloriesBurnt } = req.body;
+    const { name, calories, roundedTdeeCalc, caloriesBurnt,customDate } = req.body;
     const userId = req.user._id;
     const user = await Calorie.findById(userId);
     if (!user) return res.status(400).json({ error: "User dont exists" });
 
     const today = new Date().toISOString().split("T")[0];
-    const customDate = req.body.customDate;
 
     const selectedDate = customDate || today;
 

@@ -12,10 +12,15 @@ export const sendUserData = createAsyncThunk("backend/sendUserData", async (user
     }
 });
 
-export const sendCalorieBurnt = createAsyncThunk("backend/sendUserCalorie", async ({ caloriesBurnt }, thunkAPI) => {
-    console.log("caloriesBurnt are : " + caloriesBurnt);
+export const sendCalorieBurnt = createAsyncThunk("backend/sendUserCalorie", async ({ caloriesBurnt,selectedDate }, thunkAPI) => {
+    console.log("caloriesBurnt are : " + caloriesBurnt,"Date is : ",selectedDate);
+
+    const customDate = selectedDate
+
+    console.log("customDate is :" ,customDate)
+
     try {
-        const response = await axios.post("http://localhost:5001/post-userdata", { caloriesBurnt }, { withCredentials: true });
+        const response = await axios.post("http://localhost:5001/post-userdata", { caloriesBurnt,customDate }, { withCredentials: true });
         return response.data;
     } catch (error) {
         return thunkAPI.rejectWithValue(error.response?.data || error.message);
@@ -114,11 +119,8 @@ export const deleteUserData = createAsyncThunk("backend/deleteUserData", async (
 });
 
 export const editUserCredentials = createAsyncThunk("backend/editUserCredentials", async (updateUser, thunkAPI) => {
-
     const { updatedEmail, userGivenPassword, updatedPassword, updatedUsername } = updateUser;
-
     console.log("Email is : " + updatedEmail)
-
     try {
         console.log(updatedEmail, userGivenPassword, updatedPassword, updatedUsername)
         const response = await axios.put("http://localhost:5001/edit-user", { updatedEmail, userGivenPassword, updatedPassword, updatedUsername }, { withCredentials: true });

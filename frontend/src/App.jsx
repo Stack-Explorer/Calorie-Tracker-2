@@ -13,6 +13,7 @@ import Header from './components/Header'
 import WelcomeSection from './components/WelcomeSection'
 import toast, { Toaster } from 'react-hot-toast'
 import CaloriesBurnt from './components/CaloriesBurnt'
+import CalorieBurntDatewise from './components/CalorieBurntDatewise'
 
 function App() {
 
@@ -44,6 +45,7 @@ function App() {
       Comments hata
       {/* {data && <WelcomeSection data={data} />} */}
       <Routes>
+        <Route path='/calorieburnt' element={<CalorieBurntDatewise />} />
         <Route path='/' element={data && <CalorieTrackerRedux />} />
         <Route path='/datewisedata' element={data && <DateWiseData />} />
         <Route path='/signup' element={<Signup />} />
