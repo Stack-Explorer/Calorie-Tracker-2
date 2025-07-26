@@ -13,6 +13,7 @@ import { Toaster } from 'react-hot-toast'
 import CalorieBurntDatewise from './components/CalorieBurntDatewise'
 import NotFound from './components/NotFound'
 import { useState } from 'react'
+import ParagraphComponent from './components/ParagraphComponent'
 
 function App() {
 
@@ -35,8 +36,6 @@ function App() {
     <>
       {!isNotFoundActive && <Header />}
       <br />
-      xlsx format.
-      You can always ask GPT for getting approximate calries per item as per quantity.
       <Routes>
         <Route path='/calorieburnt' element={<CalorieBurntDatewise />} />
         <Route path='/' element={data && <CalorieTrackerRedux />} />

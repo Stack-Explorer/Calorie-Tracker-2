@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { addUserData, deleteUserData, editUserData, sendCalorieBurnt } from "../store/features/backendSlice";
 import ChartComponent from "./ChartComponent";
 import CalorieBurntDatewise from "./CalorieBurntDatewise";
+import ExportToExcel from "./ExporttoExcel";
 
 const DateWiseData = () => {
   const [selectedDate, setSelectedDate] = useState(null);
@@ -260,6 +261,8 @@ const DateWiseData = () => {
                 )}
               </div>
             )}
+                <ExportToExcel />
+
           </div>
 
           {/* Right Column - Food Entries and Summary */}

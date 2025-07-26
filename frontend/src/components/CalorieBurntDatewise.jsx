@@ -16,7 +16,7 @@ const CalorieBurntDatewise = () => {
   const [addEntry, setAddEntry] = useState(false);
   const dispatch = useDispatch();
 
-   function convertedDate(date) {
+  function convertedDate(date) {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
@@ -86,10 +86,10 @@ const CalorieBurntDatewise = () => {
     }
   }, [userData, selectedDate]);
 
-  
+
   async function handleSubmit() {
     const parsedCalories = Number(caloriesBurntText);
-    
+
     if (isNaN(parsedCalories)) {
       return toast.error("Please enter a valid number");
     }
@@ -129,7 +129,7 @@ const CalorieBurntDatewise = () => {
 
   async function handleEditSave() {
     const parsedCalories = Number(caloriesBurntText);
-    
+
     if (isNaN(parsedCalories)) {
       return toast.error("Please enter a valid number");
     }
@@ -173,9 +173,6 @@ const CalorieBurntDatewise = () => {
     return (
       <div className="mb-8">
         <MyCalendar />
-        
-      
-        
         {selectedDate && (
           <div className="bg-blue-50 p-3 rounded-md mb-6">
             <p className="text-blue-800 font-medium">
@@ -189,9 +186,9 @@ const CalorieBurntDatewise = () => {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
-      
+
       <SelectionDate />
-      
+
       <div className="bg-white rounded-xl shadow-md p-6">
         {found ? (
           <div className="space-y-4">
@@ -200,7 +197,7 @@ const CalorieBurntDatewise = () => {
                 Calories Burnt: <span className="text-blue-600">{caloriesBurnt}</span>
               </h2>
               {!editOpen && (
-                <button 
+                <button
                   onClick={() => setEditOpen(true)}
                   className="p-2 text-blue-600 hover:text-blue-800 rounded-full hover:bg-blue-50"
                   title="Edit entry"
@@ -209,7 +206,7 @@ const CalorieBurntDatewise = () => {
                 </button>
               )}
             </div>
-            
+
             {editOpen && (
               <div className="mt-4 space-y-4">
                 <div>
