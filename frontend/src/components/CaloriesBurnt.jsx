@@ -23,8 +23,6 @@ const CaloriesBurnt = () => {
     checkCurrentPath(location.pathname)
   }, [location.pathname]);
 
-  console.log("State of showCaloriesBurntComponent is :", showCaloriesBurntComponent);
-
   const today = new Date().toISOString().split("T")[0];
   const dispatch = useDispatch();
   const userData = useSelector((state) => state.backend.data);

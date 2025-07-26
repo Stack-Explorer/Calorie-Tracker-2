@@ -11,7 +11,7 @@ const CalorieSummary = ({ netIntake, netBurnt }) => {
 
       <div className="bg-white shadow-md rounded-2xl p-4 w-48 text-center border border-gray-200">
         <h2 className="text-sm font-semibold text-gray-600">Net Burnt</h2>
-        <p className="text-xl font-bold text-red-600">{netBurnt} kcal</p>
+        <p className="text-xl font-bold text-red-600">{netBurnt ?? 0} kcal</p>
       </div>
     </div>
   );

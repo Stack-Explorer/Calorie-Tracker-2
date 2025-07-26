@@ -73,7 +73,7 @@ const DateWiseData = () => {
   const [editOpen, setEditOpen] = useState(false);
   const [foodObject, setFoodObject] = useState({
     name: "",
-    calories: null
+    calories: ""
   });
   const [editingId, setEditingId] = useState(null);
   const [isDataNotAvailable, setIsDataNotAvailable] = useState(false);
@@ -91,10 +91,10 @@ const DateWiseData = () => {
 
   async function handleEditSave(dateid, fooditemid) {
     const { name, calories } = foodObject;
-    if (isNaN(calories)) return toast.error("Calories should be number");
+    if (isNaN(calories)) return toast.error("Enter valid FoodItem and calories");
     const parsedCalories = Number(calories);
     if (!name || !parsedCalories) {
-      return toast.error("Food Item and calories cannot be empty!");
+      return toast.error("Enter valid FoodItem and calories");
     }
     if (parsedCalories <= 0) return toast.error("Calorie Intake cannot be negative or zero");
 

@@ -176,31 +176,3 @@ export const deleteUserData = async (req, res) => {
         return res.status(500).json({ message: "Server error", error: error.message });
     }
 }
-
-cron.schedule("0 0 * * *", async () => {
-    const today = new Date().toISOString().split("T")[0];
-
-    // on each and every day create new date object that also came from cron.schedule
-
-    try {
-        const allUsers = await Calorie.find(); // returns cursor.
-
-        for (const user of allUsers) {
-            const alreadyExists = user.DateWise.some(entry => entry.date === today);
-
-            if (!alreadyExists) {
-                user.DateWise.push({
-                    date: today,
-                    totalCalories: 0,
-                    fooditems: []
-                });
-
-                await user.save();
-                console.log(`Added ${today} for ${user.username}`);
-            }
-            console.log("Daily empty entries created");
-        }
-    } catch (error) {
-        console.log("❌ Error in daily cron job : " + error);
-    }
-});

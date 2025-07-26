@@ -41,8 +41,6 @@ const CalorieTrackerRedux = () => {
 
   const netCalIntake = userData?.DateWise?.reduce((sum, currItem) => sum + currItem.totalCalories, 0);
 
-  console.log("netCalIntake is :", netCalIntake)
-
   const today = format(new Date(), "yyyy-MM-dd");
   const todayEntry = dateWiseData?.find(
     (entry) => format(parseISO(entry.date), "yyyy-MM-dd") === today
@@ -177,7 +175,7 @@ const CalorieTrackerRedux = () => {
       <ParagraphComponent />
       <div className="w-[92%] sm:w-[90%] max-w-md mx-auto mt-6 p-4 sm:p-6 bg-white shadow-xl rounded-2xl border border-gray-200">
         {userData && <WelcomeSection data={userData} />}
-        <CalorieSummary netIntake={`🥗${netCalIntake}` ?? 0} netBurnt={`🔥${userData?.netCaloriesBurnt}`} />
+        <CalorieSummary netIntake={`🥗${netCalIntake}` ?? 0} netBurnt={`🔥${userData?.netCaloriesBurnt ?? 0}`} />
         <CaloriesBurnt />
         <Toaster />
 
@@ -339,6 +337,12 @@ const CalorieTrackerRedux = () => {
             <h3 className="text-base font-semibold mb-2">
               Today's Entry ({formattingDate(todayEntry.date)})
             </h3>
+            <div className="text-center">
+              <p className="mb-3 bg-green-100 text-green-800 px-4 py-2 rounded-md font-medium inline-block shadow-sm">
+                Total <span className="font-semibold">{todayEntry.totalCalories ?? 0}</span> kcal
+              </p>
+            </div>
+
             <div className="space-y-3">
               {todayEntry.fooditems.map((fItem) => (
                 <div
@@ -375,13 +379,13 @@ const CalorieTrackerRedux = () => {
                       <div className="flex justify-end gap-2 mt-2">
                         <button
                           onClick={handleCancelEdit}
-                          className="px-3 py-1 text-sm bg-gray-200 hover:bg-gray-300 rounded-lg"
+                          className="px-3 pointer py-1 text-sm bg-gray-200 hover:bg-gray-300 rounded-lg"
                         >
                           Cancel
                         </button>
                         <button
                           onClick={handleSaveEdit}
-                          className="px-3 py-1 text-sm bg-green-600 hover:bg-green-700 text-white rounded-lg"
+                          className="px-3 pointer py-1 text-sm bg-green-600 hover:bg-green-700 text-white rounded-lg"
                         >
                           Save
                         </button>
@@ -403,13 +407,13 @@ const CalorieTrackerRedux = () => {
                       <div className="flex gap-2">
                         <button
                           onClick={() => handleEdit(fItem)}
-                          className="px-3 py-1 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded-lg"
+                          className="px-3 pointer py-1 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded-lg"
                         >
                           Edit
                         </button>
                         <button
                           onClick={() => handleDelete(fItem._id)}
-                          className="px-3 py-1 text-sm text-white bg-red-600 hover:bg-red-700 rounded-lg"
+                          className="px-3 pointer py-1 text-sm text-white bg-red-600 hover:bg-red-700 rounded-lg"
                         >
                           Delete
                         </button>

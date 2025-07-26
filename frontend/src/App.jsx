@@ -24,9 +24,7 @@ function App() {
 
   const [isNotFoundActive, setIsNotFoundActive] = useState(false);
 
-  if (isAuthenticated) {
-    console.log(data);
-  }
+  
 
   useEffect(() => {
     dispatch(checkUserSession());

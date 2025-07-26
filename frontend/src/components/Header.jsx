@@ -43,7 +43,7 @@ const Header = () => {
       .then((res) => {
         toast.success(res.message || "Account deleted successfully");
         setShowDeleteModal(false);
-        navigate("/signup");
+        window.location.href = "/signup";
       })
       .catch((err) => {
         toast.error(err?.message || "Failed to delete account");
@@ -63,7 +63,7 @@ const Header = () => {
               >
                 Calorie Tracker
               </h1>
-              
+
               {userData && (
                 <div className="hidden sm:block">
                   <p className="text-sm text-gray-600">
@@ -89,11 +89,10 @@ const Header = () => {
                 <>
                   <button
                     onClick={handleHistoryButton}
-                    className={`px-4 pointer py-2 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                      isOnHistoryPage
+                    className={`px-4 pointer py-2 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${isOnHistoryPage
                         ? "bg-gray-100 text-gray-900 hover:bg-gray-200 focus:ring-gray-500"
                         : "bg-purple-600 text-white hover:bg-purple-700 focus:ring-purple-500"
-                    }`}
+                      }`}
                   >
                     {isOnHistoryPage ? (
                       <span className="flex items-center gap-1">
@@ -114,11 +113,10 @@ const Header = () => {
 
                   <button
                     onClick={handleCalorieBurntHistoryButton}
-                    className={`px-4 pointer py-2 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                      isOnCalorieBurntHistory
+                    className={`px-4 pointer py-2 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${isOnCalorieBurntHistory
                         ? "bg-gray-100 text-gray-900 hover:bg-gray-200 focus:ring-gray-500"
                         : "bg-gray-800 text-white hover:bg-gray-900 focus:ring-gray-500"
-                    }`}
+                      }`}
                   >
                     {isOnCalorieBurntHistory ? (
                       <span className="flex items-center gap-1">
@@ -139,11 +137,10 @@ const Header = () => {
 
                   <button
                     onClick={() => setToggleEditProfile(!toggleEditProfile)}
-                    className={`px-4 pointer py-2 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                      toggleEditProfile
+                    className={`px-4 pointer py-2 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${toggleEditProfile
                         ? "bg-gray-100 text-gray-900 hover:bg-gray-200 focus:ring-gray-500"
                         : "bg-yellow-500 text-white hover:bg-yellow-600 focus:ring-yellow-500"
-                    }`}
+                      }`}
                   >
                     {toggleEditProfile ? "Cancel" : "Edit Profile"}
                   </button>

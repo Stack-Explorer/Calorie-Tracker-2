@@ -8,8 +8,6 @@ const ExportToExcel = ({ fileName = "calorie-data" }) => {
   const userData = useSelector((state) => state.backend.data);
   const dataToBeExported = userData?.DateWise;
 
-  console.log("dataToBeExported is:", dataToBeExported);
-
   const handleDownload = () => {
     if (!dataToBeExported || dataToBeExported.length === 0) {
       alert("No data available to export.");
@@ -24,8 +22,6 @@ const ExportToExcel = ({ fileName = "calorie-data" }) => {
         Calories: item.calories,
       }))
     );
-
-    console.log("formattedData is :",formattedData)
 
     // Generate worksheet & workbook
     const worksheet = XLSX.utils.json_to_sheet(formattedData);
