@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { getRandomQoute } from "../../Data/healthQuotes";
 
 const WelcomeSection = ({ data }) => {
   const [showWelcome, setShowWelcome] = useState(true);
+  const [quote, setQuote] = useState(getRandomQoute());
 
   if (!data) return null;
 
@@ -33,7 +35,7 @@ const WelcomeSection = ({ data }) => {
         </p>
 
         <p className="mt-4 italic text-sm text-gray-500 text-center">
-          “You don’t have to eat less — just eat smart.” 💡
+          {quote}
         </p>
       </div>
     </div>

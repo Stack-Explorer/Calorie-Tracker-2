@@ -12,7 +12,7 @@ const CaloriesBurnt = () => {
   const location = useLocation();
 
   function checkCurrentPath(location) {
-    if (location === "/datewisedata" || location === "/login" || location === "/signup"|| !userData) {
+    if (location === "/datewisedata" || location === "/login" || location === "/signup" || !userData) {
       setShowCaloriesBurntComponent(false);
     } else {
       setShowCaloriesBurntComponent(true);
@@ -36,22 +36,48 @@ const CaloriesBurnt = () => {
   const message = userData?.message
 
   const handleSubmit = async () => {
-    if (caloriesBurnt.trim() === '') return;
-    if (caloriesBurnt > 10000) return toast.error("Calories Burnt cannot be > 10000");
+    const parsedCalories = Number(caloriesBurnt);
+    if (caloriesBurnt.trim() === '' || isNaN(caloriesBurnt)) return toast.error("Enter valid value !");
 
-    await dispatch(sendCalorieBurnt({ caloriesBurnt }));
-    if (message){
-      toast.success('Calories burnt added!');
+    if (parsedCalories > 10000) return toast.error("Calories Burnt cannot be > 10000");
+    if (parsedCalories < 0) return toast.error("Calories Burnt Cannot be negative");
+
+
+    if (parsedCalories > 1200) {
+      const confirmed = window.confirm("You’re burning more than 1200 calories. Are you sure this is accurate?");
+      if (!confirmed) return;
+      await dispatch(sendCalorieBurnt({ caloriesBurnt }));
+      if (message) {
+        toast.success('Calories burnt added!');
+      }
+    } else {
+      await dispatch(sendCalorieBurnt({ caloriesBurnt }));
+      if (message) {
+        toast.success('Calories burnt added!');
+      }
     }
     setCaloriesBurnt('');
   };
 
   const handleSave = async () => {
-    if (caloriesBurnt.trim() === '') return;
-    if (caloriesBurnt > 10000) return toast.error("Calories Burnt cannot be > 10000");
+    const parsedCalories = Number(caloriesBurnt);
+    if (caloriesBurnt.trim() === '' || isNaN(caloriesBurnt)) return toast.error("Enter valid value !");
+
+    if (parsedCalories > 10000) return toast.error("Calories Burnt cannot be > 10000");
+    if (parsedCalories < 0) return toast.error("Calories Burnt Cannot be negative");
+
     const dateid = burntCaloriesDate?._id
-    await dispatch(sendEditedBurntCalories({ dateid, caloriesBurnt }));
-    toast.success('Calories burnt updated!');
+
+    if (parsedCalories > 1200) {
+      const confirmed = window.confirm("You’re burning more than 1200 calories. Are you sure this is accurate?");
+      if (!confirmed) return;
+      await dispatch(sendEditedBurntCalories({ dateid, caloriesBurnt }));
+      toast.success('Calories burnt updated!');
+    } else {
+      await dispatch(sendEditedBurntCalories({ dateid, caloriesBurnt }));
+      toast.success('Calories burnt updated!');
+    }
+
     setIsEditing(false);
     setCaloriesBurnt('');
   };
@@ -73,7 +99,7 @@ const CaloriesBurnt = () => {
             </div>
             <button
               onClick={handleEdit}
-              className="bg-yellow-500 text-white px-6 py-2 rounded-xl hover:bg-yellow-600 transition duration-300"
+              className="bg-yellow-500 pointer text-white px-6 py-2 rounded-xl hover:bg-yellow-600 transition duration-300"
             >
               Edit
             </button>
@@ -89,7 +115,7 @@ const CaloriesBurnt = () => {
             />
             <button
               onClick={todayCalorie ? handleSave : handleSubmit}
-              className={`${todayCalorie ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'} text-white px-6 py-2 rounded-xl transition duration-300`}
+              className={`${todayCalorie ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'} text-white px-6 py-2 rounded-xl pointer transition duration-300`}
             >
               {todayCalorie ? 'Save' : 'Submit'}
             </button>

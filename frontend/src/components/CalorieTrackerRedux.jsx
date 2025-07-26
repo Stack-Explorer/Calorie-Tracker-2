@@ -8,6 +8,9 @@ import {
   setCalorieIntake,
 } from "../store/features/backendSlice";
 import { format, parseISO } from "date-fns";
+import CalorieSummary from "./CalorieSummary";
+import CaloriesBurnt from "./CaloriesBurnt";
+import WelcomeSection from "./WelcomeSection";
 
 const CalorieTrackerRedux = () => {
   const [foodItem, setFoodItem] = useState("");
@@ -35,6 +38,10 @@ const CalorieTrackerRedux = () => {
   const username = userData?.username;
   const calorieIntake = userData?.requiredCalorieIntake;
 
+  const netCalIntake = userData?.DateWise?.reduce((sum, currItem) => sum + currItem.totalCalories, 0);
+
+  console.log("netCalIntake is :", netCalIntake)
+
   const today = format(new Date(), "yyyy-MM-dd");
   const todayEntry = dateWiseData?.find(
     (entry) => format(parseISO(entry.date), "yyyy-MM-dd") === today
@@ -49,20 +56,32 @@ const CalorieTrackerRedux = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
     const parsedCalories = Number(calories);
 
-    if (!calorieIntake || calorieIntake <= 0) {
+    // Validate overall calorie intake set
+    if (!calorieIntake || calorieIntake <= 0 || calorieIntake > 5000) {
       return toast.error("Set a valid required calorie intake first");
     }
 
-    if (!foodItem || !calories || isNaN(parsedCalories)) {
-      return toast.error("Please enter valid food and numeric calories");
+    // Validate individual food entry
+    if (!foodItem.trim() || !calories.trim() || isNaN(parsedCalories) || parsedCalories <= 0) {
+      return toast.error("Please enter a valid food item and numeric calories");
     }
 
-    dispatch(addUserData({ name: foodItem, calories: parsedCalories }));
-    toast.success("Food Item added");
+    // Confirm if calories per meal are suspiciously high
+    if (parsedCalories > 3000) {
+      const confirmed = window.confirm("Sure to add such large number of calories per meal?");
+      if (!confirmed) return;
+    }
+
+    // All checks passed — dispatch and reset
+    dispatch(addUserData({ name: foodItem.trim(), calories: parsedCalories }));
+    toast.success("Food item added");
+
     setFoodItem("");
     setCalories("");
+    setShowForm(false);
   };
 
   const calculateTDEE = () => {
@@ -107,6 +126,13 @@ const CalorieTrackerRedux = () => {
     if (isNaN(parsedCalories))
       return toast.error("Enter numeric calories");
 
+    if (parsedCalories <= 0) return toast.error("Calorie Intake cannot be negative or 0")
+
+    if (parsedCalories > 1200) {
+      const confirmed = window.confirm("You're entering more than 1200 calories for one item. Are you sure this is correct?");
+      if (!confirmed) return;
+    }
+
     const dateEntry = dateWiseData.find((entry) =>
       entry.fooditems.some((item) => item._id === editingId)
     );
@@ -147,18 +173,14 @@ const CalorieTrackerRedux = () => {
 
   return (
     <div className="w-[92%] sm:w-[90%] max-w-md mx-auto mt-6 p-4 sm:p-6 bg-white shadow-xl rounded-2xl border border-gray-200">
+      {userData && <WelcomeSection data={userData} />}
+      <CalorieSummary netIntake={`🥗${netCalIntake}` ?? 0} netBurnt={`🔥${userData?.netCaloriesBurnt}`} />
+      <CaloriesBurnt />
       <Toaster />
-      <h2 className="text-xl sm:text-2xl font-bold text-center text-gray-800 mb-3">
-        Calorie Tracker
-      </h2>
-      {username && (
-        <p className="text-center text-sm sm:text-base text-gray-700 font-medium mb-4">
-          Welcome, {username}
-        </p>
-      )}
+     
 
       {calorieIntake !== null && (
-        <div className="mb-5 text-center text-sm text-gray-700 space-y-1">
+        <div className="mb-5 mt-5 text-center text-sm text-gray-700 space-y-1">
           <p className="text-base sm:text-lg font-semibold text-gray-800">
             Daily Requirement:{" "}
             {calorieIntake <= 0 ? "Invalid Calorie Value" : calorieIntake} kcal
@@ -166,9 +188,8 @@ const CalorieTrackerRedux = () => {
           <p>
             Remaining:{" "}
             <span
-              className={`font-bold ${
-                remainingCalories >= 0 ? "text-green-600" : "text-red-600"
-              }`}
+              className={`font-bold ${remainingCalories >= 0 ? "text-green-600" : "text-red-600"
+                }`}
             >
               {remainingCalories >= 0
                 ? remainingCalories
@@ -185,13 +206,13 @@ const CalorieTrackerRedux = () => {
           onClick={() =>
             setShowRequiredCalorieInput(!showRequiredCalorieInput)
           }
-          className="w-full py-2 text-white bg-green-600 hover:bg-green-700 rounded-xl font-semibold"
+          className="w-full py-2 pointer text-white bg-green-600 hover:bg-green-700 rounded-xl font-semibold"
         >
           {showRequiredCalorieInput ? "Hide Intake" : "Set Required Calories"}
         </button>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="w-full py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-xl font-semibold"
+          className="w-full py-2 pointer text-white bg-blue-600 hover:bg-blue-700 rounded-xl font-semibold"
         >
           {showForm ? "Close Form" : "Add Entry"}
         </button>
@@ -302,7 +323,7 @@ const CalorieTrackerRedux = () => {
           />
           <button
             type="submit"
-            className="w-full py-2 bg-blue-500 text-white rounded-xl font-semibold"
+            className="w-full pointer py-2 bg-blue-500 text-white rounded-xl font-semibold"
           >
             Save Entry
           </button>

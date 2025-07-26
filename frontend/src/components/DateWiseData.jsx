@@ -1,25 +1,28 @@
 import dateformat from "dateformat";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { CircleCheckBig, CircleX, Pencil, Trash } from "lucide-react"
+import { CircleCheckBig, CircleX, Pencil, Trash, Plus, ArrowLeft, ArrowRight } from "lucide-react";
 import Calendar from "react-calendar";
 import toast from "react-hot-toast";
 import { addUserData, deleteUserData, editUserData, sendCalorieBurnt } from "../store/features/backendSlice";
+import ChartComponent from "./ChartComponent";
+import CalorieBurntDatewise from "./CalorieBurntDatewise";
 
 const DateWiseData = () => {
   const [selectedDate, setSelectedDate] = useState(null);
+  const userData = useSelector((state) => state.backend.data);
+  const dispatch = useDispatch();
 
   function MyCalendar() {
-
     const handleDateChange = (date) => {
       const today = new Date();
-      if (date > today) return; /*Date Will be passed as params.*/
+      if (date > today) return;
 
       setSelectedDate(date);
 
       const matched = userData?.DateWise?.find(item =>
         formatDate(new Date(item.date)) === formatDate(date)
-      ); /*Will make new date object of item.date and finds === of seleceted Date*/
+      );
 
       if (matched) {
         handleClick(matched._id);
@@ -30,15 +33,13 @@ const DateWiseData = () => {
       }
     };
 
-    console.log("selectedDate is :", selectedDate)
-
     return (
-      <div>
+      <div className="bg-white rounded-lg shadow-md p-4 max-w-md mx-auto">
         <Calendar
           onChange={handleDateChange}
           value={selectedDate}
           maxDate={new Date()}
-          className="bg-black text-white"
+          className="border-0 text-gray-800"
           tileDisabled={({ date }) => date > new Date()}
           tileClassName={({ date }) => {
             const formatted = formatDate(date);
@@ -46,19 +47,22 @@ const DateWiseData = () => {
               (item) => formatDate(new Date(item.date)) === formatted
             );
             return hasData
-              ? "cursor-pointer bg-green-100 text-black"
-              : "bg-gray-300 text-gray-500";
+              ? "cursor-pointer bg-green-100 text-black rounded-full hover:bg-green-200"
+              : "bg-white text-gray-500 hover:bg-gray-100 rounded-full";
           }}
+          prevLabel={<ArrowLeft className="h-4 w-4" />}
+          nextLabel={<ArrowRight className="h-4 w-4" />}
+          prev2Label={null}
+          next2Label={null}
         />
-        {selectedDate && <p className="mt-2">Selected Date: {formatDate(selectedDate)}</p>}
+        {selectedDate && (
+          <p className="mt-2 text-center text-gray-600">
+            Selected: <span className="font-medium">{formatDate(selectedDate)}</span>
+          </p>
+        )}
       </div>
     );
   }
-
-  const userData = useSelector((state) => state.backend.data);
-  console.log("Data :", JSON.parse(JSON.stringify(userData)))
-
-  const dispatch = useDispatch();
 
   const formatDate = (date) => {
     return dateformat(date, "dS-mmmm");
@@ -69,11 +73,12 @@ const DateWiseData = () => {
   const [foodObject, setFoodObject] = useState({
     name: "",
     calories: null
-  })
-  const [editingId, setEditingId] = useState(null)
+  });
+  const [editingId, setEditingId] = useState(null);
   const [isDataNotAvailable, setIsDataNotAvailable] = useState(false);
-  const [noDataAvailableForDate, setNoDataAvailableForDate] = useState(null)
+  const [noDataAvailableForDate, setNoDataAvailableForDate] = useState(null);
   const [isAddEntryOpen, setIsAddEntryOpen] = useState(false);
+  const [calorieBurntHistoryOpen, setCalorieBurntHistoryOpen] = useState(false);
 
   useEffect(() => {
     if (!dateWiseData?._id || !userData?.DateWise) return;
@@ -85,45 +90,62 @@ const DateWiseData = () => {
 
   async function handleEditSave(dateid, fooditemid) {
     const { name, calories } = foodObject;
-    if (isNaN(calories)) return toast.error("Calories should be number")
-    const parsedCalories = Number(calories)
+    if (isNaN(calories)) return toast.error("Calories should be number");
+    const parsedCalories = Number(calories);
     if (!name || !parsedCalories) {
       return toast.error("Food Item and calories cannot be empty!");
     }
+    if (parsedCalories <= 0) return toast.error("Calorie Intake cannot be negative or zero");
+
     try {
+      if (parsedCalories > 3000) {
+        const confirmed = window.confirm("Are you sure you want to add this many calories per meal?");
+        if (!confirmed) return;
+      }
+
       const result = await dispatch(editUserData({ dateid, fooditemid, name, calories }));
       if (result.payload?.data) {
-        // Update the local state with the new date data
         const updatedDateData = result.payload.data.DateWise.find(item => item._id === dateid);
         setDateWiseData(updatedDateData);
-        toast.success("Successfully updated!");
+        toast.success("Updated successfully!");
       }
     } catch (err) {
-      console.error("❌ Error in handleEditSave:", err);
-      toast.error("Something went wrong while updating!");
+      console.error("Error in handleEditSave:", err);
+      toast.error("Failed to update!");
     }
     setEditOpen(false);
     setEditingId(null);
-
-    console.log("Date id :", dateid, "FoodItem id :", fooditemid);
   }
 
-  async function handleSave(name, calories, noDataAvailableForDate) {
-    if (isNaN(calories)) return toast.error("Calories should be number")
-    const parsedCalories = Number(calories)
+  function convertedDate(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+
+  async function handleSave(name, calories) {
+    if (isNaN(calories)) return toast.error("Calories should be number.");
+    const parsedCalories = Number(calories);
     if (!name || !parsedCalories) {
       return toast.error("Food Item and calories cannot be empty!");
     }
-    const userData = {
+    if (parsedCalories <= 0) return toast.error("Calorie Intake cannot be negative or zero");
+
+    const updatedUserData = {
       name,
       calories,
-      customDate: noDataAvailableForDate
+      customDate: convertedDate(selectedDate)
     }
 
     try {
-      const result = await dispatch(addUserData(userData));
+      if (parsedCalories > 3000) {
+        const confirmed = window.confirm("Are you sure you want to add this many calories per meal?");
+        if (!confirmed) return;
+      }
+
+      const result = await dispatch(addUserData(updatedUserData));
       if (result.payload?.data) {
-        // Find the newly created date entry
         const newDateEntry = result.payload.data.DateWise.find(item =>
           formatDate(new Date(item.date)) === formatDate(new Date(noDataAvailableForDate))
         );
@@ -141,148 +163,232 @@ const DateWiseData = () => {
     setFoodObject({
       name: "",
       calories: ""
-    })
+    });
     setIsAddEntryOpen(false);
   }
 
   function handleEdit(id) {
-    setEditOpen(!editOpen)
+    setEditOpen(!editOpen);
     setEditingId(id);
 
-    const itemToEdit = dateWiseData?.fooditems?.find(currItem => currItem._id === id)
+    const itemToEdit = dateWiseData?.fooditems?.find(currItem => currItem._id === id);
     if (itemToEdit) {
       setFoodObject({
         name: itemToEdit.name,
         calories: itemToEdit.calories
-      })
+      });
     }
-    console.log(id);
-  }
-
-  function handleAddEntry() {
-    setIsAddEntryOpen(!isAddEntryOpen);
   }
 
   function handleDelete(dateid, fooditemid) {
-    console.log("handleDelete clicked")
-    const userData = {
-      dateid,
-      fooditemid
-    }
-    dispatch(deleteUserData(userData));
+    dispatch(deleteUserData({ dateid, fooditemid }));
   }
 
   function handleClick(id) {
-    console.log("Id passed by myCalendar is :", id);
     const dateData = userData?.DateWise?.find((currItem) => currItem._id === id);
-    console.log("Date data is :", dateData?.date);
     if (!dateData || !dateData.fooditems || dateData.fooditems.length === 0) {
       setIsDataNotAvailable(true);
       setDateWiseData(null);
-      setNoDataAvailableForDate(dateData?.date)
+      setNoDataAvailableForDate(dateData?.date);
     } else {
       setIsDataNotAvailable(false);
       setDateWiseData(dateData);
     }
   }
 
-  console.log("dateWiseData is :", dateWiseData);
-  console.log(isDataNotAvailable);
-  console.log("Day having zero entry is :", noDataAvailableForDate)
+  // Calculate total calories for the selected date
+  const totalCalories = dateWiseData?.fooditems?.reduce((sum, item) => sum + item.calories, 0) || 0;
 
   return (
-    <>
-      {dateWiseData ? dateWiseData?.fooditems?.map((currItem) => (
-        <div className="flex" id={currItem._id}>
-          <div className="px-6 ml-2 py-3 border mt-3">
-            {editOpen && (editingId === currItem._id) ? <>
-              <input placeholder="name" className="border ml-2 mt-3" type="text" value={foodObject.name} onChange={(e) => setFoodObject({ ...foodObject, name: e.target.value })} />
-              <input placeholder="calories" className="border ml-2 mt-3" type="text" value={foodObject.calories} onChange={(e) => setFoodObject({ ...foodObject, calories: e.target.value })} />
-              <button onClick={() => handleEditSave(dateWiseData?._id, currItem?._id)}><CircleCheckBig /></button>
-              <button onClick={() => setEditOpen(!editOpen)} className="ml-3"><CircleX /></button>
-            </> : <>
-              <p>{currItem.name}</p>
-              <p>{currItem.calories}</p>
-              <button onClick={() => handleEdit(currItem?._id)} className="cursor-pointer"><Pencil /></button>
-              <button onClick={() => handleDelete(dateWiseData?._id, currItem?._id)} className="cursor-pointer ml-3"><Trash /></button>
-            </>
-            }
+    <div>
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Left Column - Calendar and Add Entry */}
+          <div className="lg:w-1/3">
+            <MyCalendar />
 
-            <p>{currItem._id}</p>
+            {selectedDate && (
+              <div className="mt-6 bg-white rounded-lg shadow-md p-4">
+                {isAddEntryOpen ? (
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-gray-800">Add New Food Entry</h3>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Food Name</label>
+                      <input
+                        placeholder="e.g. Yogurt"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        type="text"
+                        value={foodObject.name}
+                        onChange={(e) => setFoodObject({ ...foodObject, name: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Calories</label>
+                      <input
+                        placeholder="e.g. 150"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        type="number"
+                        value={foodObject.calories}
+                        onChange={(e) => setFoodObject({ ...foodObject, calories: e.target.value })}
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleSave(foodObject.name, foodObject.calories)}
+                        className="px-4 pointer py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center gap-1"
+                      >
+                        <CircleCheckBig className="h-4 w-4" />
+                        Save
+                      </button>
+                      <button
+                        onClick={() => setIsAddEntryOpen(false)}
+                        className="px-4 pointer py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 flex items-center gap-1"
+                      >
+                        <CircleX className="h-4 w-4" />
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setIsAddEntryOpen(true)}
+                    className="w-full pointer px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 flex items-center justify-center gap-1"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Add Food Entry
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Right Column - Food Entries and Summary */}
+          <div className="lg:w-2/3">
+            <div className="bg-white rounded-lg shadow-md overflow-hidden">
+              <div className="p-4 border-b border-gray-200">
+                <h2 className="text-xl font-bold text-gray-800">
+                  {selectedDate ? formatDate(selectedDate) : "Select a date"}
+                </h2>
+                {selectedDate && (
+                  <div className="mt-2 flex justify-between items-center">
+                    <span className="text-sm text-gray-600">
+                      {dateWiseData?.fooditems?.length || 0} entries
+                    </span>
+                    <span className="text-sm font-medium">
+                      Total: <span className="text-blue-600">{totalCalories}</span> calories
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {isDataNotAvailable ? (
+                <div className="p-8 text-center">
+                  <div className="text-gray-500 mb-4">No entries found for {formatDate(noDataAvailableForDate)}</div>
+                  <button
+                    onClick={() => setIsAddEntryOpen(true)}
+                    className="px-4 pointer py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  >
+                    Add First Entry
+                  </button>
+                </div>
+              ) : dateWiseData?.fooditems?.length > 0 ? (
+                <ul className="divide-y divide-gray-200">
+                  {dateWiseData.fooditems.map((currItem) => (
+                    <li key={currItem._id} className="p-4 hover:bg-gray-50">
+                      {editOpen && editingId === currItem._id ? (
+                        <div className="space-y-3">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Food Name</label>
+                            <input
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              type="text"
+                              value={foodObject.name}
+                              onChange={(e) => setFoodObject({ ...foodObject, name: e.target.value })}
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Calories</label>
+                            <input
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              type="number"
+                              value={foodObject.calories}
+                              onChange={(e) => setFoodObject({ ...foodObject, calories: e.target.value })}
+                            />
+                          </div>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleEditSave(dateWiseData._id, currItem._id)}
+                              className="px-3 py-1 pointer bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-1"
+                            >
+                              <CircleCheckBig className="h-4 w-4" />
+                              Save
+                            </button>
+                            <button
+                              onClick={() => setEditOpen(false)}
+                              className="px-3 pointer py-1 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 flex items-center gap-1"
+                            >
+                              <CircleX className="h-4 w-4" />
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <h3 className="font-medium text-gray-900">{currItem.name}</h3>
+                            <p className="text-sm text-gray-500">{currItem.calories} calories</p>
+                          </div>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleEdit(currItem._id)}
+                              className="p-2 text-blue-600 hover:text-blue-800 rounded-full hover:bg-blue-50"
+                              title="Edit"
+                            >
+                              <Pencil className="h-4 pointer w-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(dateWiseData._id, currItem._id)}
+                              className="p-2 pointer text-red-600 hover:text-red-800 rounded-full hover:bg-red-50"
+                              title="Delete"
+                            >
+                              <Trash className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className="p-8 text-center text-gray-500">
+                  {selectedDate ? "No entries for selected date" : "Please select a date to view entries"}
+                </div>
+              )}
+            </div>
+
+            {/* 📱 Message only for mobile */}
+            <p className="block mt-4 md:hidden text-sm text-gray-500 text-center">
+              Please view on tablet or larger screen to see the chart.
+            </p>
+
+            {/* 💻 Chart only for tablet and larger */}
+
+            {/* Chart Section */}
+            <div className="hidden  md:block mt-8 bg-white rounded-lg shadow-md p-4">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Calorie Intake Overview</h3>
+              <ChartComponent />
+            </div>
+
+
+            {/* Calorie Burnt Toggle */}
+
+            {/* Calorie Burnt Section */}
 
           </div>
         </div>
-      )) : (
-        <>
-        
-        
-        
-          <p>No entry found</p>
-        </> 
-        
-        
-      )
-      }
-      <div className="flex">
-        
-     
-      
       </div>
-      <>
-        {selectedDate && (  // Only show if date is selected
-          <>
-            {isAddEntryOpen ? (
-              <>
-                <button
-                  onClick={() => handleSave(foodObject.name, foodObject.calories, noDataAvailableForDate)}
-                  className="px-4 py-2 ml-2 text-white bg-black"
-                >
-                  Save Entry
-                </button>
-                <input
-                  placeholder="name"
-                  className="border ml-2 mt-3"
-                  type="text"
-                  value={foodObject.name}
-                  onChange={(e) => setFoodObject({ ...foodObject, name: e.target.value })}
-                />
-                <input
-                  placeholder="calories"
-                  className="border ml-2 mt-3"
-                  type="text"
-                  value={foodObject.calories}
-                  onChange={(e) => setFoodObject({ ...foodObject, calories: e.target.value })}
-                />
-                <button
-                  onClick={() => setIsAddEntryOpen(!isAddEntryOpen)}
-                  className="ml-3"
-                >
-                  <CircleX />
-                </button>
-              </>
-            ) : (
-              <button
-                onClick={handleAddEntry}
-                className="px-4 py-2 ml-2 text-white bg-black"
-              >  
-         Add Entry
-              </button>
-            )}
-          </>
-        )}
-
-      </>
-
-      {isDataNotAvailable &&
-        <>
-          <p>Data Not Available for {formatDate(noDataAvailableForDate)}</p>
-        </>
-      }
-      <MyCalendar />
-      <button className="m-3 black-button">See Chart</button>
-    </>
-
-  )
-}
+    </div>
+  );
+};
 
 export default DateWiseData;

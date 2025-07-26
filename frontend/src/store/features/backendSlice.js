@@ -72,10 +72,10 @@ export const checkUserSession = createAsyncThunk("backend/getUserData", async (_
     }
 });
 
-export const addUserData = createAsyncThunk("backend/postUserData", async (userData, thunkAPI) => {
+export const addUserData = createAsyncThunk("backend/postUserData", async (updatedUserData, thunkAPI) => {
     try {
-        const { name, calories, customDate } = userData;
-        console.log("Backend Slice", "cutomDate :", customDate)
+        const { name, calories, customDate } = updatedUserData;
+        console.log("Backend Slice","Add UserData", "customDate :", customDate)
         const response = await axios.post(
             "http://localhost:5001/post-userdata",
             { name, calories, customDate },

@@ -3,17 +3,16 @@ import Login from './components/Login'
 import Signup from './components/Signup'
 import { Route, Routes, Navigate, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { LogOut } from 'lucide-react'
 import { checkUserSession, logoutUser } from './store/features/backendSlice'
 import { useEffect } from 'react'
 import CalorieTrackerRedux from './components/CalorieTrackerRedux'
 import DateWiseData from './components/DateWiseData'
-import UpdateUser from './components/UpdateUser'
 import Header from './components/Header'
 import WelcomeSection from './components/WelcomeSection'
-import toast, { Toaster } from 'react-hot-toast'
-import CaloriesBurnt from './components/CaloriesBurnt'
+import { Toaster } from 'react-hot-toast'
 import CalorieBurntDatewise from './components/CalorieBurntDatewise'
+import NotFound from './components/NotFound'
+import { useState } from 'react'
 
 function App() {
 
@@ -21,10 +20,8 @@ function App() {
   const status = useSelector((state) => state.backend.status);
   const data = useSelector((state) => state.backend.data);
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const message = useSelector((state => state.backend.message));
 
-  console.log("Message is : " + message)
+  const [isNotFoundActive, setIsNotFoundActive] = useState(false);
 
   if (isAuthenticated) {
     console.log(data);
@@ -36,20 +33,18 @@ function App() {
 
   return (
     <>
-
-
-
-      <Header />
-      <CaloriesBurnt />
+      {!isNotFoundActive && <Header />}
       <br />
-      Comments hata
-      {/* {data && <WelcomeSection data={data} />} */}
+      xlsx format.
+      You can always ask GPT for getting approximate calries per item as per quantity.
       <Routes>
         <Route path='/calorieburnt' element={<CalorieBurntDatewise />} />
         <Route path='/' element={data && <CalorieTrackerRedux />} />
         <Route path='/datewisedata' element={data && <DateWiseData />} />
         <Route path='/signup' element={<Signup />} />
         <Route path='/login' element={<Login />} />
+        <Route path="*" element={<NotFound setIsNotFoundActive={setIsNotFoundActive} />} />
+        <Route path='/calorieburntdata' element={<CalorieBurntDatewise />} />
       </Routes>
       <Toaster />
       <p>Status is : {status}</p>

@@ -4,4 +4,9 @@
     .black-button {
         @apply px-4 py-2 bg-black text-white cursor-pointer hover:bg-yellow-600 hover:text-white
     }
+    
+    .pointer {
+        @apply cursor-pointer
+    }
+    
 }
