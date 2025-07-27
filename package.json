@@ -1,0 +1,22 @@
+{
+  "name": "calorie",
+  "version": "1.0.0",
+  "description": "A full-stack Calorie Tracker built with **React**, **Redux Toolkit**, **Express.js**, and **MongoDB Atlas**. It helps users manage their calorie intake effectively with features like TDEE calculation, date-wise tracking, profile management, and more.",
+  "main": "backend/server/index.js",
+
+  "scripts": {
+    "build" : "npm install --prefix backend && npm install --prefix frontend && npm run build --prefix frontend",
+    "start" : "npm run start --prefix backend"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Stack-Explorer/Calorie-Tracker.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Stack-Explorer/Calorie-Tracker/issues"
+  },
+  "homepage": "https://github.com/Stack-Explorer/Calorie-Tracker#readme"
+}

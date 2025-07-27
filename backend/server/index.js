@@ -6,6 +6,7 @@ import connectionRouter from "../router/auth.router.js"
 import cookieParser from "cookie-parser";
 import logicRoutes from "../router/logic.router.js"
 import cors from "cors";
+import path from "path"
 
 dotenv.config();
 
@@ -20,9 +21,18 @@ app.use(cors({
 }))
 
 const PORT = process.env.PORT;
+const __dirname = path.resolve();
 
 app.use("/",connectionRouter);
 app.use("/",logicRoutes);
+
+if(process.env.NODE_ENV === "production"){
+    app.use(express.static(path.join(__dirname,"../../frontend/dist")))
+
+    app.get("*",(req,res)=>{
+        res.sendFile(path.join(__dirname,"../..frontend","dist","index.html"))
+    })
+}
 
 app.listen(PORT,()=>{
     connectDB();

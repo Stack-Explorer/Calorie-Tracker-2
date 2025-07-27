@@ -1,11 +1,13 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
+var conditionalRouting = import.meta.env.MODE  === "development" ? "http://localhost:5001" : "/"
+
 export const sendUserData = createAsyncThunk("backend/sendUserData", async (userData, thunkAPI) => {
     try {
         const { email, password, username } = userData;
         console.log("Email : " + email + "Password is : " + password + "Username is : " + username);
-        const response = await axios.post("http://localhost:5001/create-user", { email, password, username }, { withCredentials: true });
+        const response = await axios.post(`${conditionalRouting}/create-user`, { email, password, username }, { withCredentials: true });
         return response.data;
     } catch (error) {
         return thunkAPI.rejectWithValue(error.response?.data || error.message);
@@ -16,7 +18,7 @@ export const sendCalorieBurnt = createAsyncThunk("backend/sendUserCalorie", asyn
     const customDate = selectedDate
 
     try {
-        const response = await axios.post("http://localhost:5001/post-userdata", { caloriesBurnt,customDate }, { withCredentials: true });
+        const response = await axios.post(`${conditionalRouting}/post-userdata`, { caloriesBurnt,customDate }, { withCredentials: true });
         return response.data;
     } catch (error) {
         return thunkAPI.rejectWithValue(error.response?.data || error.message);
@@ -25,7 +27,7 @@ export const sendCalorieBurnt = createAsyncThunk("backend/sendUserCalorie", asyn
 
 export const sendEditedBurntCalories = createAsyncThunk("backend/sendEditedBurntCalories", async ({ caloriesBurnt, dateid }, thunkAPI) => {
     try {
-        const response = await axios.put(`http://localhost:5001/edit-calorieburnt/${dateid}`, { caloriesBurnt }, { withCredentials: true });
+        const response = await axios.put(`${conditionalRouting}/edit-calorieburnt/${dateid}`, { caloriesBurnt }, { withCredentials: true });
         return response.data;
     } catch (error) {
         return thunkAPI.rejectWithValue(error.response?.data || error.message);
@@ -35,7 +37,7 @@ export const sendEditedBurntCalories = createAsyncThunk("backend/sendEditedBurnt
 export const loginUser = createAsyncThunk("backend/loginUser", async (userData, thunkAPI) => {
     try {
         const { email, password } = userData;
-        const response = await axios.post("http://localhost:5001/login-user", { email, password }, { withCredentials: true });
+        const response = await axios.post(`${conditionalRouting}/login-user`, { email, password }, { withCredentials: true });
         return response.data;
     } catch (error) {
         return thunkAPI.rejectWithValue(error.response?.data || error.message);
@@ -44,7 +46,7 @@ export const loginUser = createAsyncThunk("backend/loginUser", async (userData, 
 
 export const logoutUser = createAsyncThunk("backend/logoutUser", async (_, thunkAPI) => {
     try {
-        const response = await axios.post("http://localhost:5001/logout-user", {}, {
+        const response = await axios.post(`${conditionalRouting}/logout-user`, {}, {
             withCredentials: true
         });
         return response.data;
@@ -55,7 +57,7 @@ export const logoutUser = createAsyncThunk("backend/logoutUser", async (_, thunk
 
 export const checkUserSession = createAsyncThunk("backend/getUserData", async (_, thunkAPI) => {
     try {
-        const response = await axios.get("http://localhost:5001/get-userdata", {
+        const response = await axios.get(`${conditionalRouting}/get-userdata`, {
             withCredentials: true,
         });
         return response.data;
@@ -68,7 +70,7 @@ export const addUserData = createAsyncThunk("backend/postUserData", async (updat
     try {
         const { name, calories, customDate } = updatedUserData;
         const response = await axios.post(
-            "http://localhost:5001/post-userdata",
+            `${conditionalRouting}/post-userdata`,
             { name, calories, customDate },
             { withCredentials: true }
         );
@@ -81,7 +83,7 @@ export const addUserData = createAsyncThunk("backend/postUserData", async (updat
 export const setCalorieIntake = createAsyncThunk("backend/setCalorieIntake", async ({ roundedTdeeCalc }, thunkAPI) => {
     try {
         console.log("required calorie intake is : " + roundedTdeeCalc);
-        const response = await axios.post("http://localhost:5001/post-userdata", { roundedTdeeCalc }, { withCredentials: true });
+        const response = await axios.post(`${conditionalRouting}/post-userdata`, { roundedTdeeCalc }, { withCredentials: true });
         return response.data;
     } catch (error) {
         return thunkAPI.rejectWithValue(error.response?.data || error.message);
@@ -92,7 +94,7 @@ export const editUserData = createAsyncThunk("backend/editUserData", async ({ da
     console.log("editUser hitted");
     try {
         console.log("Type of calories is :", typeof calories);
-        const response = await axios.put(`http://localhost:5001/edit-userdata/${dateid}/${fooditemid}`, { name, calories }, { withCredentials: true });
+        const response = await axios.put(`${conditionalRouting}/edit-userdata/${dateid}/${fooditemid}`, { name, calories }, { withCredentials: true });
         return response.data;
     } catch (error) {
         return thunkAPI.rejectWithValue(error.response?.data || error.message);
@@ -102,7 +104,7 @@ export const editUserData = createAsyncThunk("backend/editUserData", async ({ da
 export const deleteUserData = createAsyncThunk("backend/deleteUserData", async (userData, thunkAPI) => {
     try {
         const { dateid, fooditemid } = userData;
-        const response = await axios.delete(`http://localhost:5001/delete-userdata/${dateid}/${fooditemid}`, { withCredentials: true });
+        const response = await axios.delete(`${conditionalRouting}/delete-userdata/${dateid}/${fooditemid}`, { withCredentials: true });
         return response.data;
     } catch (error) {
         return thunkAPI.rejectWithValue(error.response?.data || error.message);
@@ -113,7 +115,7 @@ export const editUserCredentials = createAsyncThunk("backend/editUserCredentials
     const { updatedEmail, userGivenPassword, updatedPassword, updatedUsername } = updateUser;
     console.log("Email is : " + updatedEmail)
     try {
-        const response = await axios.put("http://localhost:5001/edit-user", { updatedEmail, userGivenPassword, updatedPassword, updatedUsername }, { withCredentials: true });
+        const response = await axios.put(`${conditionalRouting}/edit-user`, { updatedEmail, userGivenPassword, updatedPassword, updatedUsername }, { withCredentials: true });
         return response.data;
     } catch (error) {
         return thunkAPI.rejectWithValue(error.response?.data || error.message);
@@ -123,7 +125,7 @@ export const editUserCredentials = createAsyncThunk("backend/editUserCredentials
 export const deleteUsersWholeData = createAsyncThunk("backend/deleteUserWholeData", async ({ userGivenPassword }, thunkAPI) => {
     console.log("userGivenPassword is : " + userGivenPassword);
     try {
-        const response = await axios.post("http://localhost:5001/delete-user", { userGivenPassword }, { withCredentials: true });
+        const response = await axios.post(`${conditionalRouting}/delete-user`, { userGivenPassword }, { withCredentials: true });
         return response.data;
     } catch (error) {
         return thunkAPI.rejectWithValue(error.response?.message || error.message);
