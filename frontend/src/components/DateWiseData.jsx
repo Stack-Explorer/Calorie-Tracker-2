@@ -6,8 +6,7 @@ import Calendar from "react-calendar";
 import toast from "react-hot-toast";
 import { addUserData, deleteUserData, editUserData, sendCalorieBurnt } from "../store/features/backendSlice";
 import ChartComponent from "./ChartComponent";
-import CalorieBurntDatewise from "./CalorieBurntDatewise";
-import ExportToExcel from "./ExporttoExcel";
+import ExportToExcel from "./ExportToExcel";
 
 const DateWiseData = () => {
   const [selectedDate, setSelectedDate] = useState(null);
