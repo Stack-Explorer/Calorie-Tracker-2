@@ -36,11 +36,31 @@ A full-stack Calorie Tracker built with **React**, **Redux Toolkit**, **Express.
 
 ---
 
-## 📦 Installation
+## 📦 Project Setup
 
-### 🔧 Backend Setup
+### 💻 Whole Project Setup
 
 ```bash
-git clone https://github.com/stack-explorer/calorie-tracker.git
-cd calorie-tracker/backend
+git clone --single-branch --branch deployment https://github.com/Stack-Explorer/Calorie-Tracker.git
+cd Calorie-Tracker
+
+## Backend Setup
+
+```bash
+cd backend
 npm install
+npm run start
+
+## Frontend Setup
+
+```bash
+cd ../frontend
+npm install
+npm run dev
+
+```bash
+PORT=5001
+MONGODB_URI='your_mongodb_uri'
+JWT_SECRET='your_jwt_secret'
+NODE_ENV=development
+
