@@ -45,22 +45,20 @@ git clone --single-branch --branch deployment https://github.com/Stack-Explorer/
 cd Calorie-Tracker
 
 ## Backend Setup
-
-```bash
 cd backend
 npm install
 npm run start
 
-## Frontend Setup
+✏️ Create a .env file inside backend/ with the following content:
 
-```bash
-cd ../frontend
-npm install
-npm run dev
-
-```bash
 PORT=5001
 MONGODB_URI='your_mongodb_uri'
 JWT_SECRET='your_jwt_secret'
 NODE_ENV=development
+
+🎨 Frontend Setup
+
+cd ../frontend
+npm install
+npm run dev
 
