@@ -64,13 +64,8 @@ npm run dev
 
 ## Sample Screenshots
 
-<img width="1343" height="648" alt="Image" src="https://github.com/user-attachments/assets/ff03d50a-bef6-4548-a35d-b19b8bcae016" />
-
-<img width="1343" height="545" alt="Image" src="https://github.com/user-attachments/assets/b00ce573-9ca2-4e02-81d8-0e5b069a6687" />
-
-<img width="1341" height="644" alt="Image" src="https://github.com/user-attachments/assets/3bf2bc31-25ee-4017-9fb4-5c307bed1144" />
-
-<img width="1347" height="412" alt="Image" src="https://github.com/user-attachments/assets/0c769c40-8729-45c8-8681-f99aeac974e2" />
-
-<img width="1340" height="635" alt="Image" src="https://github.com/user-attachments/assets/31dd696b-2714-41ab-982c-55c7a87881c5" />
-
+![Home](./assets/home.PNG)
+![Add Entry](./assets/add.PNG)
+![Calorie History & Charts](./assets/excel.PNG)
+![Delete Account](./assets/delete.PNG)
+![Calories Burnt data with also updatation of it](./assets/burnt.PNG)
