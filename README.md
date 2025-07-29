@@ -41,7 +41,7 @@ A full-stack Calorie Tracker built with **React**, **Redux Toolkit**, **Express.
 ### 💻 Whole Project Setup
 
 ```bash
-git clone https://github.com/Stack-Explorer/Calorie-Tracker-2.git
+git clone https://github.com/Stack-Explorer/Calorie-Tracker.git
 cd Calorie-Tracker
 
 ## Backend Setup
