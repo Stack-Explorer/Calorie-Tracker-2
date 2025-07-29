@@ -61,11 +61,3 @@ NODE_ENV=development
 cd ../frontend
 npm install
 npm run dev
-
-## Sample Screenshots
-
-![Home](./assets/home.PNG)
-![Add Entry](./assets/add.PNG)
-![Calorie History & Charts](./assets/excel.PNG)
-![Delete Account](./assets/delete.PNG)
-![Calories Burnt data with also updatation of it](./assets/burnt.PNG)
