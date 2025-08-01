@@ -16,6 +16,8 @@
 --- Delete Account Page
 <img width="1274" height="163" alt="Logout Confirmation" src="https://github.com/user-attachments/assets/5d6728a9-59e9-42d4-8989-0d3a3604ffd9" />
 --- Logout Confirmation for better UX
+<img width="1073" height="676" alt="404 Page" src="https://github.com/user-attachments/assets/a25bfffc-71f7-4abf-a2b2-7b4f418605d5" />
+--- 404 Page for invalid route
 
 
 # 🥗 Calorie Tracker App
